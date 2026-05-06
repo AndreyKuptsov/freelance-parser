@@ -19,7 +19,15 @@
   
   "keywords": [
     "python",
+    "javascript",
+    "typescript",
+    "node",
+    "react",
+    "vue",
+    "angular",
     "fastapi",
+    "django",
+    "flask",
     "telegram",
     "telegram bot",
     "telegram mini app",
@@ -27,27 +35,27 @@
     "dart",
     "парсинг",
     "автоматизация",
-    "django",
-    "flask",
-    "scrapy"
+    "бот",
+    "api",
+    "веб-разработка",
+    "мобильное приложение",
+    "backend",
+    "frontend",
+    "fullstack",
+    "scraping",
+    "crawler"
   ],
   
   "exclude_keywords": [
-    "php",
-    "bitrix",
-    "wordpress",
-    "react",
-    "angular",
-    "1с",
-    "дизайн",
-    "логотип",
+    "дизайн логотипа",
     "баннер",
     "копирайтинг",
     "рерайтинг",
-    "seo",
-    "контент",
-    "дешево",
-    "бесплатно"
+    "seo продвижение",
+    "контент-менеджер",
+    "набор текста",
+    "перевод",
+    "озвучка"
   ],
   
   "min_budget": 3000,
