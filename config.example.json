@@ -43,7 +43,21 @@
     "frontend",
     "fullstack",
     "scraping",
-    "crawler"
+    "crawler",
+    "разработка",
+    "программирование",
+    "код",
+    "скрипт",
+    "приложение",
+    "сайт",
+    "веб-сервис",
+    "интеграция",
+    "база данных",
+    "sql",
+    "mongodb",
+    "rest api",
+    "websocket",
+    "микросервис"
   ],
   
   "exclude_keywords": [
