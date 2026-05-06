@@ -19,27 +19,38 @@
   
   "keywords": [
     "python",
-    "парсинг",
-    "бот",
+    "fastapi",
     "telegram",
+    "telegram bot",
+    "telegram mini app",
+    "flutter",
+    "dart",
+    "парсинг",
     "автоматизация",
-    "веб-разработка",
     "django",
     "flask",
-    "fastapi",
     "scrapy"
   ],
   
   "exclude_keywords": [
-    "дешево",
-    "бесплатно",
+    "php",
+    "bitrix",
+    "wordpress",
+    "react",
+    "angular",
+    "1с",
+    "дизайн",
+    "логотип",
+    "баннер",
     "копирайтинг",
-    "дизайн логотипа",
-    "студент",
-    "новичок"
+    "рерайтинг",
+    "seo",
+    "контент",
+    "дешево",
+    "бесплатно"
   ],
   
-  "min_budget": 5000,
+  "min_budget": 10000,
   
   "default_price": "10000",
   "default_deadline": "7 дней",
