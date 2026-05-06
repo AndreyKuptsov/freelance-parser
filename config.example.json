@@ -50,7 +50,7 @@
     "бесплатно"
   ],
   
-  "min_budget": 10000,
+  "min_budget": 3000,
   
   "default_price": "10000",
   "default_deadline": "7 дней",
