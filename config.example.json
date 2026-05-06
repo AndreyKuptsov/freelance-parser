@@ -13,6 +13,11 @@
   "freelance_ru_login": "your_freelance_ru_login",
   "freelance_ru_password": "your_freelance_ru_password",
   
+  "enable_kwork": true,
+  "kwork_login": "your_kwork_login",
+  "kwork_password": "your_kwork_password",
+  "kwork_categories": [""],
+  
   "auto_send_proposals": true,
   "check_interval": 300,
   "delay_between_proposals": 10,

@@ -345,6 +345,169 @@ class FreelanceRuParser(FreelanceParser):
             return False
 
 
+class KworkParser(FreelanceParser):
+    """Парсер для Kwork.ru"""
+    
+    def __init__(self, config: Dict):
+        super().__init__(config)
+        self.base_url = 'https://kwork.ru'
+        self.login()
+    
+    def login(self):
+        """Авторизация на Kwork.ru"""
+        try:
+            login_url = f'{self.base_url}/login'
+            data = {
+                'username': self.config.get('kwork_login', ''),
+                'password': self.config.get('kwork_password', '')
+            }
+            response = self.session.post(login_url, data=data, timeout=30)
+            if response.status_code == 200:
+                logger.info("Успешная авторизация на Kwork.ru")
+            else:
+                logger.error(f"Ошибка авторизации на Kwork.ru: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Ошибка при авторизации на Kwork.ru: {e}")
+    
+    def parse_jobs(self) -> List[Dict]:
+        """Парсит задания с Kwork.ru"""
+        jobs = []
+        try:
+            # Категории для поиска
+            categories = self.config.get('kwork_categories', [''])
+            
+            for category in categories:
+                url = f'{self.base_url}/projects{category}'
+                logger.info(f"Парсинг URL: {url}")
+                
+                try:
+                    response = self.session.get(url, timeout=30)
+                    
+                    if response.status_code == 404:
+                        logger.warning(f"Страница не найдена (404): {url}")
+                        continue
+                    elif response.status_code != 200:
+                        logger.error(f"Ошибка загрузки страницы Kwork.ru: {response.status_code}")
+                        continue
+                    
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # Пробуем разные варианты селекторов для Kwork
+                    job_items = (
+                        soup.find_all('div', class_='wants-card') or
+                        soup.find_all('div', class_='project-item') or
+                        soup.find_all('article', class_='want') or
+                        []
+                    )
+                    
+                    logger.info(f"Найдено {len(job_items)} элементов на странице")
+                    
+                    if not job_items:
+                        logger.warning(f"Не найдено заданий на Kwork.ru")
+                        with open('debug_kwork.html', 'w', encoding='utf-8') as f:
+                            f.write(response.text)
+                        logger.info("HTML страницы сохранен в debug_kwork.html для анализа")
+                        continue
+                    
+                    for item in job_items:
+                        try:
+                            # Извлечение ID задания
+                            job_id = (
+                                item.get('data-id') or
+                                item.get('data-project-id') or
+                                item.get('id', '')
+                            )
+                            
+                            if not job_id:
+                                # Пытаемся извлечь ID из ссылки
+                                link_elem = item.find('a', href=True)
+                                if link_elem and '/projects/' in link_elem['href']:
+                                    job_id = link_elem['href'].split('/')[-1].split('?')[0]
+                            
+                            if not job_id or job_id in self.processed_jobs:
+                                continue
+                            
+                            # Извлечение заголовка
+                            title_elem = (
+                                item.find('a', class_='wants-card__header-title') or
+                                item.find('h3') or
+                                item.find('a', class_='title')
+                            )
+                            title = title_elem.text.strip() if title_elem else ''
+                            
+                            # Извлечение ссылки
+                            link = ''
+                            if title_elem and title_elem.get('href'):
+                                link = self.base_url + title_elem['href'] if not title_elem['href'].startswith('http') else title_elem['href']
+                            
+                            # Извлечение описания
+                            description_elem = (
+                                item.find('div', class_='wants-card__description') or
+                                item.find('div', class_='description') or
+                                item.find('p')
+                            )
+                            description = description_elem.text.strip() if description_elem else ''
+                            
+                            # Извлечение бюджета
+                            budget_elem = (
+                                item.find('div', class_='wants-card__price') or
+                                item.find('span', class_='price') or
+                                item.find('div', class_='budget')
+                            )
+                            budget = budget_elem.text.strip() if budget_elem else 'Не указан'
+                            
+                            if title:
+                                jobs.append({
+                                    'id': job_id,
+                                    'title': title,
+                                    'description': description,
+                                    'budget': budget,
+                                    'link': link,
+                                    'source': 'Kwork.ru'
+                                })
+                                logger.info(f"Найдено задание: {title[:50]}...")
+                        
+                        except Exception as e:
+                            logger.error(f"Ошибка парсинга задания Kwork.ru: {e}")
+                            continue
+                
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Ошибка сетевого запроса к Kwork.ru: {e}")
+                    continue
+        
+        except Exception as e:
+            logger.error(f"Общая ошибка парсинга Kwork.ru: {e}")
+        
+        return jobs
+    
+    def send_proposal(self, job: Dict) -> bool:
+        """Отправляет предложение на Kwork.ru"""
+        try:
+            proposal_text = self.generate_personalized_proposal(job)
+            
+            # URL для отправки предложения
+            url = f"{self.base_url}/projects/{job['id']}/respond"
+            
+            data = {
+                'message': proposal_text,
+                'price': self.config.get('default_price', ''),
+                'deadline': self.config.get('default_deadline', '')
+            }
+            
+            response = self.session.post(url, data=data, timeout=30)
+            
+            if response.status_code == 200:
+                logger.info(f"Предложение отправлено на задание: {job['title']}")
+                return True
+            else:
+                logger.error(f"Ошибка отправки предложения: {response.status_code}")
+                return False
+        
+        except Exception as e:
+            logger.error(f"Ошибка отправки предложения на Kwork.ru: {e}")
+            return False
+
+
 class TelegramNotifier:
     """Класс для отправки уведомлений в Telegram"""
     
@@ -420,6 +583,9 @@ class FreelanceBot:
         
         if self.config.get('enable_freelance_ru', False):
             self.parsers.append(FreelanceRuParser(self.config))
+        
+        if self.config.get('enable_kwork', False):
+            self.parsers.append(KworkParser(self.config))
         
         if not self.parsers:
             logger.warning("Не включен ни один парсер! Проверьте config.json")
